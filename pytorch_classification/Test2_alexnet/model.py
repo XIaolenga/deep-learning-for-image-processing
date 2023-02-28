@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch
 
 
-class AlexNet(nn.Module):
+class AlexNet(nn.Module):#hhh
     def __init__(self, num_classes=1000, init_weights=False):
         super(AlexNet, self).__init__()
         self.features = nn.Sequential(
