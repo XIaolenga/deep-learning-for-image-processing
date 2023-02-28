@@ -9,11 +9,11 @@ class GoogLeNet(nn.Module):   #####定义网络模块
         self.aux_logits = aux_logits
 
         self.conv1 = BasicConv2d(3, 64, kernel_size=7, stride=2, padding=3)
-        self.maxpool1 = nn.MaxPool2d(3, stride=2, ceil_mode=True)  ####
+        self.maxpool1 = nn.MaxPool2d(3, stride=2, ceil_mode=True)  ####如果计算出的数值为小数，那么为Ture将向上取整
 
         self.conv2 = BasicConv2d(64, 64, kernel_size=1)
         self.conv3 = BasicConv2d(64, 192, kernel_size=3, padding=1)
-        self.maxpool2 = nn.MaxPool2d(3, stride=2, ceil_mode=True)
+        self.maxpool2 = nn.MaxPool2d(3, stride=2, ceil_mode=True)  ####如果计算出的数值为小数，那么为Ture将向上取整
 
         self.inception3a = Inception(192, 64, 96, 128, 16, 32, 32)
         self.inception3b = Inception(256, 128, 128, 192, 32, 96, 64)
@@ -30,10 +30,10 @@ class GoogLeNet(nn.Module):   #####定义网络模块
         self.inception5b = Inception(832, 384, 192, 384, 48, 128, 128)
 
         if self.aux_logits:
-            self.aux1 = InceptionAux(512, num_classes)
+            self.aux1 = InceptionAux(512, num_classes)   
             self.aux2 = InceptionAux(528, num_classes)
 
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) ###平均池化    自适应
         self.dropout = nn.Dropout(0.4)
         self.fc = nn.Linear(1024, num_classes)
         if init_weights:
@@ -60,7 +60,7 @@ class GoogLeNet(nn.Module):   #####定义网络模块
         # N x 480 x 14 x 14
         x = self.inception4a(x)
         # N x 512 x 14 x 14
-        if self.training and self.aux_logits:    # eval model lose this layer
+        if self.training and self.aux_logits:    # eval model lose this layer辅助分类器不参与验证
             aux1 = self.aux1(x)
 
         x = self.inception4b(x)
@@ -89,8 +89,8 @@ class GoogLeNet(nn.Module):   #####定义网络模块
         x = self.fc(x)
         # N x 1000 (num_classes)
         if self.training and self.aux_logits:   # eval model lose this layer
-            return x, aux2, aux1
-        return x
+            return x, aux2, aux1                    ###若是训练过程且使用辅助分类器的话，则返回主分类器和两个辅助分类器的值
+        return x              
 
     def _initialize_weights(self):
         for m in self.modules():
