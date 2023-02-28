@@ -5,7 +5,7 @@ import torch
 class AlexNet(nn.Module):#hhh
     def __init__(self, num_classes=1000, init_weights=False):
         super(AlexNet, self).__init__()
-        self.features = nn.Sequential(
+        self.features = nn.Sequential(                              # 特征提取模块
             nn.Conv2d(3, 48, kernel_size=11, stride=4, padding=2),  # input[3, 224, 224]  output[48, 55, 55] 
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2),                  # output[48, 27, 27]
@@ -20,7 +20,7 @@ class AlexNet(nn.Module):#hhh
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2),                  # output[128, 6, 6]
         )
-        self.classifier = nn.Sequential(
+        self.classifier = nn.Sequential(                            # 分类器模块（全连接层）
             nn.Dropout(p=0.5),
             nn.Linear(128 * 6 * 6, 2048),
             nn.ReLU(inplace=True),
