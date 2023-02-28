@@ -136,7 +136,7 @@ class Inception(nn.Module): ################定义Inception结构
         return torch.cat(outputs, 1)                ####对四个输出进行合并，，output表示输出列表，1表示所需要合并的维度（深度维度）【batch，channel，high，weight】
 
 
-class InceptionAux(nn.Module):          
+class InceptionAux(nn.Module):          ##############辅助分类器
     def __init__(self, in_channels, num_classes):           
         super(InceptionAux, self).__init__()
         self.averagePool = nn.AvgPool2d(kernel_size=5, stride=3)
