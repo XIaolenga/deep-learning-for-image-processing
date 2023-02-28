@@ -16,7 +16,8 @@ def main():
     print("using {} device.".format(device))
 
     data_transform = {
-        "train": transforms.Compose([transforms.RandomResizedCrop(224),
+        ###################在对训练集和验证集进行预处理操作时，若减去（123.68， 116.78， 103.94）表示采用image net进行的迁移学习
+        "train": transforms.Compose([transforms.RandomResizedCrop(224),                     
                                      transforms.RandomHorizontalFlip(),
                                      transforms.ToTensor(),
                                      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
@@ -45,7 +46,7 @@ def main():
 
     train_loader = torch.utils.data.DataLoader(train_dataset,
                                                batch_size=batch_size, shuffle=True,
-                                               num_workers=nw)
+                                               num_workers=0)            #数据生成器
 
     validate_dataset = datasets.ImageFolder(root=os.path.join(image_path, "val"),
                                             transform=data_transform["val"])
@@ -58,9 +59,9 @@ def main():
 
     # test_data_iter = iter(validate_loader)
     # test_image, test_label = test_data_iter.next()
-
+    #######################################################################实例化VGG网络模型
     model_name = "vgg16"
-    net = vgg(model_name=model_name, num_classes=5, init_weights=True)
+    net = vgg(model_name=model_name, num_classes=5, init_weights=True)####类别个数以及是否进行初始化保存在model模型中的**kwargs中
     net.to(device)
     loss_function = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters(), lr=0.0001)
