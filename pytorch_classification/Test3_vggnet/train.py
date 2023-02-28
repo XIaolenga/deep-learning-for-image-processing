@@ -59,7 +59,7 @@ def main():
 
     # test_data_iter = iter(validate_loader)
     # test_image, test_label = test_data_iter.next()
-    #######################################################################实例化VGG网络模型
+    #######################################################################实例化VGG网络模型  tqdm是运行时动态展示训练情况，比如进度条啥的
     model_name = "vgg16"
     net = vgg(model_name=model_name, num_classes=5, init_weights=True)####类别个数以及是否进行初始化保存在model模型中的**kwargs中
     net.to(device)
