@@ -132,8 +132,8 @@ class Inception(nn.Module): ################定义Inception结构
         branch3 = self.branch3(x)
         branch4 = self.branch4(x)
 
-        outputs = [branch1, branch2, branch3, branch4]
-        return torch.cat(outputs, 1)
+        outputs = [branch1, branch2, branch3, branch4]  #将输出放入列表                #########由于输出的高宽相同，所以可以按照深度（通道数）进行合并
+        return torch.cat(outputs, 1)                ####对四个输出进行合并，，output表示输出列表，1表示所需要合并的维度（深度维度）【batch，channel，high，weight】
 
 
 class InceptionAux(nn.Module):          
