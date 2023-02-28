@@ -3,8 +3,8 @@ import torch
 import torch.nn.functional as F
 
 
-class GoogLeNet(nn.Module):
-    def __init__(self, num_classes=1000, aux_logits=True, init_weights=False):
+class GoogLeNet(nn.Module):   #####定义网络模块
+    def __init__(self, num_classes=1000, aux_logits=True, init_weights=False):       # 传入分类类别个数       aux_logits=True表示是否使用辅助分类器
         super(GoogLeNet, self).__init__()
         self.aux_logits = aux_logits
 
@@ -137,22 +137,22 @@ class Inception(nn.Module): ################定义Inception结构
 
 
 class InceptionAux(nn.Module):          ##############辅助分类器
-    def __init__(self, in_channels, num_classes):           
+    def __init__(self, in_channels, num_classes):           #传入输入深度和类别个数
         super(InceptionAux, self).__init__()
         self.averagePool = nn.AvgPool2d(kernel_size=5, stride=3)
         self.conv = BasicConv2d(in_channels, 128, kernel_size=1)  # output[batch, 128, 4, 4]
-
-        self.fc1 = nn.Linear(2048, 1024)
-        self.fc2 = nn.Linear(1024, num_classes)
+       
+        self.fc1 = nn.Linear(2048, 1024)     #输入节点个数为上一层的输出节点展平后的个数
+        self.fc2 = nn.Linear(1024, num_classes)   #分类类别个数1000
 
     def forward(self, x):
-        # aux1: N x 512 x 14 x 14, aux2: N x 528 x 14 x 14
+        # aux1: N x 512 x 14 x 14, aux2: N x 528 x 14 x 14 表示辅助分类器所输入的特征矩阵的维度
         x = self.averagePool(x)
         # aux1: N x 512 x 4 x 4, aux2: N x 528 x 4 x 4
         x = self.conv(x)
         # N x 128 x 4 x 4
-        x = torch.flatten(x, 1)
-        x = F.dropout(x, 0.5, training=self.training)
+        x = torch.flatten(x, 1)   ##########1 表示从channel这个维度开始展平的
+        x = F.dropout(x, 0.5, training=self.training)##############传入一个training来控制模型的状态在model.train()模式下training状态为ture 在model.eval()模式下的状态为False
         # N x 2048
         x = F.relu(self.fc1(x), inplace=True)
         x = F.dropout(x, 0.5, training=self.training)
