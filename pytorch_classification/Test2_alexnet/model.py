@@ -33,9 +33,9 @@ class AlexNet(nn.Module):#hhh
             self._initialize_weights()
 
     def forward(self, x):                                           #前向传播
-        x = self.features(x)
+        x = self.features(x)                                        #先将输入变量x输入到特征提取模块，再进行展平操作
         x = torch.flatten(x, start_dim=1)
-        x = self.classifier(x)
+        x = self.classifier(x)                                      #最后进入分类器模块
         return x
 
     def _initialize_weights(self):                                  
