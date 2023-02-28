@@ -34,7 +34,7 @@ class AlexNet(nn.Module):#hhh
 
     def forward(self, x):                                           #前向传播
         x = self.features(x)                                        #先将输入变量x输入到特征提取模块，再进行展平操作
-        x = torch.flatten(x, start_dim=1)
+        x = torch.flatten(x, start_dim=1)                           #索引从1开始展平操作           因为pytorch的张量的通道排列顺序为【batch，channel，high，weigh】
         x = self.classifier(x)                                      #最后进入分类器模块
         return x
 
