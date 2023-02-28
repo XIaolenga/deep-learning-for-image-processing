@@ -103,22 +103,22 @@ class GoogLeNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
 
-class Inception(nn.Module):
-    def __init__(self, in_channels, ch1x1, ch3x3red, ch3x3, ch5x5red, ch5x5, pool_proj):
+class Inception(nn.Module): ################定义Inception结构
+    def __init__(self, in_channels, ch1x1, ch3x3red, ch3x3, ch5x5red, ch5x5, pool_proj):#######传入输入特征矩阵的深度（卷积核个数）和类别（1*1卷积  ，3*3 卷积， 5*5卷积， 3*3maxpooling等等）
         super(Inception, self).__init__()
+########################################################需要保证每个分支得到的特征矩阵的高度和宽度相同##################################################################################################
+        self.branch1 = BasicConv2d(in_channels, ch1x1, kernel_size=1)  # 第一个分支
 
-        self.branch1 = BasicConv2d(in_channels, ch1x1, kernel_size=1)
-
-        self.branch2 = nn.Sequential(
+        self.branch2 = nn.Sequential(                                   #分支二
             BasicConv2d(in_channels, ch3x3red, kernel_size=1),
-            BasicConv2d(ch3x3red, ch3x3, kernel_size=3, padding=1)   # 保证输出大小等于输入大小
+            BasicConv2d(ch3x3red, ch3x3, kernel_size=3, padding=1)   # 修改padding 保证输出大小等于输入大小
         )
 
         self.branch3 = nn.Sequential(
             BasicConv2d(in_channels, ch5x5red, kernel_size=1),
             # 在官方的实现中，其实是3x3的kernel并不是5x5，这里我也懒得改了，具体可以参考下面的issue
             # Please see https://github.com/pytorch/vision/issues/906 for details.
-            BasicConv2d(ch5x5red, ch5x5, kernel_size=5, padding=2)   # 保证输出大小等于输入大小
+            BasicConv2d(ch5x5red, ch5x5, kernel_size=5, padding=2)   # 修改padding保证输出大小等于输入大小
         )
 
         self.branch4 = nn.Sequential(
@@ -136,8 +136,8 @@ class Inception(nn.Module):
         return torch.cat(outputs, 1)
 
 
-class InceptionAux(nn.Module):
-    def __init__(self, in_channels, num_classes):
+class InceptionAux(nn.Module):          
+    def __init__(self, in_channels, num_classes):           
         super(InceptionAux, self).__init__()
         self.averagePool = nn.AvgPool2d(kernel_size=5, stride=3)
         self.conv = BasicConv2d(in_channels, 128, kernel_size=1)  # output[batch, 128, 4, 4]
@@ -162,13 +162,13 @@ class InceptionAux(nn.Module):
         return x
 
 
-class BasicConv2d(nn.Module):
-    def __init__(self, in_channels, out_channels, **kwargs):
+class BasicConv2d(nn.Module):         ############将卷积操作与Relu激活函数进行捆绑
+    def __init__(self, in_channels, out_channels, **kwargs):      ######传入了两个参数，一个为输入矩阵的深度，一个为输出矩阵的深度
         super(BasicConv2d, self).__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, **kwargs)
         self.relu = nn.ReLU(inplace=True)
 
-    def forward(self, x):
+    def forward(self, x):   #定义小模块的正向传播过程
         x = self.conv(x)
         x = self.relu(x)
         return x
