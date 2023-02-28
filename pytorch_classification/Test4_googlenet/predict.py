@@ -35,7 +35,7 @@ def main():
         class_indict = json.load(f)
 
     # create model
-    model = GoogLeNet(num_classes=5, aux_logits=False).to(device)
+    model = GoogLeNet(num_classes=5, aux_logits=False).to(device)   ##初始化时不使用辅助分类器
 
     # load model weights
     weights_path = "./googleNet.pth"
