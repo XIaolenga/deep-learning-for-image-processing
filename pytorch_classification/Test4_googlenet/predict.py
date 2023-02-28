@@ -40,8 +40,8 @@ def main():
     # load model weights
     weights_path = "./googleNet.pth"
     assert os.path.exists(weights_path), "file: '{}' dose not exist.".format(weights_path)
-    missing_keys, unexpected_keys = model.load_state_dict(torch.load(weights_path, map_location=device),
-                                                          strict=False)
+    missing_keys, unexpected_keys = model.load_state_dict(torch.load(weights_path, map_location=device), 
+                                                          strict=False)#################保存模型时以及保存了辅助分类器的参数，strict=False 因为默认ture会精准的匹配预训练模型
 
     model.eval()
     with torch.no_grad():
