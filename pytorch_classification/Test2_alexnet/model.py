@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 
-
+# 作者使用两块GPU进行并行运算
 class AlexNet(nn.Module):#hhh
     def __init__(self, num_classes=1000, init_weights=False):
         super(AlexNet, self).__init__()
