@@ -60,7 +60,7 @@ def main():
     # test_data_iter = iter(validate_loader)
     # test_image, test_label = test_data_iter.next()
 
-    net = GoogLeNet(num_classes=5, aux_logits=True, init_weights=True)
+    net = GoogLeNet(num_classes=5, aux_logits=True, init_weights=True)             #########花分类是五个类别
     # 如果要使用官方的预训练权重，注意是将权重载入官方的模型，不是我们自己实现的模型
     # 官方的模型中使用了bn层以及改了一些参数，不能混用
     # import torchvision
@@ -91,13 +91,13 @@ def main():
             images, labels = data
             optimizer.zero_grad()
             logits, aux_logits2, aux_logits1 = net(images.to(device))
-            loss0 = loss_function(logits, labels.to(device))
+            loss0 = loss_function(logits, labels.to(device))###########三个输出，一个主分类器，两个辅助分类器   分类器与真实标签之间的损失
             loss1 = loss_function(aux_logits1, labels.to(device))
             loss2 = loss_function(aux_logits2, labels.to(device))
-            loss = loss0 + loss1 * 0.3 + loss2 * 0.3
-            loss.backward()
-            optimizer.step()
-
+            loss = loss0 + loss1 * 0.3 + loss2 * 0.3           #损失累加
+            loss.backward()                              #损失反向传播
+            optimizer.step()               # 迭代优化器
+ 
             # print statistics
             running_loss += loss.item()
 
