@@ -96,7 +96,7 @@ def main():
             loss2 = loss_function(aux_logits2, labels.to(device))
             loss = loss0 + loss1 * 0.3 + loss2 * 0.3           #损失累加
             loss.backward()                              #损失反向传播
-            optimizer.step()               # 迭代优化器
+            optimizer.step()               # 迭代优化器更新模型参数
  
             # print statistics
             running_loss += loss.item()
@@ -105,14 +105,14 @@ def main():
                                                                      epochs,
                                                                      loss)
 
-        # validate
-        net.eval()
+        # validate        验证
+        net.eval() 
         acc = 0.0  # accumulate accurate number / epoch
         with torch.no_grad():
             val_bar = tqdm(validate_loader, file=sys.stdout)
             for val_data in val_bar:
                 val_images, val_labels = val_data
-                outputs = net(val_images.to(device))  # eval model only have last output layer
+                outputs = net(val_images.to(device))  # eval model only have last output layer，验证时仅有一个输出
                 predict_y = torch.max(outputs, dim=1)[1]
                 acc += torch.eq(predict_y, val_labels.to(device)).sum().item()
 
