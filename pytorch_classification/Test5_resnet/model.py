@@ -93,7 +93,7 @@ class ResNet(nn.Module):
                  num_classes=1000,
                  include_top=True,
                  groups=1,
-                 width_per_group=64):
+                 width_per_group=64):   ############## groups和width_per_group是rensnext网络的构建参数
         super(ResNet, self).__init__()
         self.include_top = include_top
         self.in_channel = 64
