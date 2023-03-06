@@ -2,14 +2,14 @@ import torch.nn as nn
 import torch
 
 
-class BasicBlock(nn.Module):
-    expansion = 1
+class BasicBlock(nn.Module):          ########### 表示18、34层所对应的残差结构
+    expansion = 1        ## 对应残差结构中主分支的卷积核个数是否发生变化
 
-    def __init__(self, in_channel, out_channel, stride=1, downsample=None, **kwargs):
+    def __init__(self, in_channel, out_channel, stride=1, downsample=None, **kwargs):    ### downsample下采样参数（不为none则表示虚线所对应的残差结构）
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=in_channel, out_channels=out_channel,
-                               kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(out_channel)
+                               kernel_size=3, stride=stride, padding=1, bias=False)     ### 步幅为1，残差结构不需要bias
+        self.bn1 = nn.BatchNorm2d(out_channel)          ### BN层，注意输入的参数
         self.relu = nn.ReLU()
         self.conv2 = nn.Conv2d(in_channels=out_channel, out_channels=out_channel,
                                kernel_size=3, stride=1, padding=1, bias=False)
@@ -17,7 +17,7 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
 
     def forward(self, x):
-        identity = x
+        identity = x                         ###  将输入x赋值给捷径分支上的值
         if self.downsample is not None:
             identity = self.downsample(x)
 
@@ -29,12 +29,12 @@ class BasicBlock(nn.Module):
         out = self.bn2(out)
 
         out += identity
-        out = self.relu(out)
+        out = self.relu(out)               ### 输出加捷径分支上的输出后再进行relu激活函数
 
         return out
 
 
-class Bottleneck(nn.Module):
+class Bottleneck(nn.Module):         ### 50、101、152 层的残差结构
     """
     注意：原论文中，在虚线残差结构的主分支上，第一个1x1卷积层的步距是2，第二个3x3卷积层步距是1。
     但在pytorch官方实现过程中是第一个1x1卷积层的步距是1，第二个3x3卷积层步距是2，
@@ -88,7 +88,7 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
 
     def __init__(self,
-                 block,
+                 block,    ##表示的为残差结构，这里可以根据定义的网络层数所对应不同的block（BasicBlock或者Bottleneck）
                  blocks_num,
                  num_classes=1000,
                  include_top=True,
