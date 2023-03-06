@@ -173,7 +173,7 @@ def resnet50(num_classes=1000, include_top=True):
 
 def resnet101(num_classes=1000, include_top=True):
     # https://download.pytorch.org/models/resnet101-5d3b4d8f.pth
-    return ResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes, include_top=include_top)
+    return ResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes, include_top=include_top) ## 修改参数列表
 
 
 def resnext50_32x4d(num_classes=1000, include_top=True):
