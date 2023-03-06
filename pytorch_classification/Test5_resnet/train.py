@@ -19,7 +19,7 @@ def main():
         "train": transforms.Compose([transforms.RandomResizedCrop(224),
                                      transforms.RandomHorizontalFlip(),
                                      transforms.ToTensor(),
-                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]),
+                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]), # 标准化方法
         "val": transforms.Compose([transforms.Resize(256),
                                    transforms.CenterCrop(224),
                                    transforms.ToTensor(),
@@ -58,18 +58,18 @@ def main():
     print("using {} images for training, {} images for validation.".format(train_num,
                                                                            val_num))
     
-    net = resnet34()
+    net = resnet34() # 默认分类为1000（未写num_classes=XXX）写Num——classes参数要将下面迁移学习的注释掉
     # load pretrain weights
     # download url: https://download.pytorch.org/models/resnet34-333f7ec4.pth
     model_weight_path = "./resnet34-pre.pth"
     assert os.path.exists(model_weight_path), "file {} does not exist.".format(model_weight_path)
-    net.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
+    net.load_state_dict(torch.load(model_weight_path, map_location='cpu')) # 载入模型权重
     # for param in net.parameters():
     #     param.requires_grad = False
 
     # change fc layer structure
-    in_channel = net.fc.in_features
-    net.fc = nn.Linear(in_channel, 5)
+    in_channel = net.fc.in_features #将定义网络的全连接层按自己任务修改
+    net.fc = nn.Linear(in_channel, 5)     
     net.to(device)
 
     # define loss function
