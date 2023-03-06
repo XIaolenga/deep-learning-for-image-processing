@@ -2,7 +2,7 @@ from torch import nn
 import torch
 
 
-def _make_divisible(ch, divisor=8, min_ch=None):
+def _make_divisible(ch, divisor=8, min_ch=None):  ###
     """
     This function is taken from the original tf repo.
     It ensures that all layers have a channel number that is divisible by 8
@@ -18,24 +18,24 @@ def _make_divisible(ch, divisor=8, min_ch=None):
     return new_ch
 
 
-class ConvBNReLU(nn.Sequential):  
-    def __init__(self, in_channel, out_channel, kernel_size=3, stride=1, groups=1):
-        padding = (kernel_size - 1) // 2
+class ConvBNReLU(nn.Sequential):  ##卷积、BN层记忆RELU6的组合层   nn.sequential 不需要写forward函数
+    def __init__(self, in_channel, out_channel, kernel_size=3, stride=1, groups=1):  ##group=1则表示为普通的卷积，若group=输入特征矩阵的深度（in_channel）
+        padding = (kernel_size - 1) // 2  
         super(ConvBNReLU, self).__init__(
-            nn.Conv2d(in_channel, out_channel, kernel_size, stride, padding, groups=groups, bias=False),
+            nn.Conv2d(in_channel, out_channel, kernel_size, stride, padding, groups=groups, bias=False),    ##BN层不要偏置
             nn.BatchNorm2d(out_channel),
             nn.ReLU6(inplace=True)
         )
 
 
 class InvertedResidual(nn.Module):      # 倒残差结构
-    def __init__(self, in_channel, out_channel, stride, expand_ratio):
+    def __init__(self, in_channel, out_channel, stride, expand_ratio):## expand_ratio表示扩展因子（表格中的t）
         super(InvertedResidual, self).__init__()
-        hidden_channel = in_channel * expand_ratio
-        self.use_shortcut = stride == 1 and in_channel == out_channel
+        hidden_channel = in_channel * expand_ratio    ## tk = k * t（输入特征矩阵的深度*扩展因子t）
+        self.use_shortcut = stride == 1 and in_channel == out_channel  ## 判断是否使用捷径分支（当步距为1，且输入特征矩阵与输出特征矩阵的大小相同）
 
         layers = []
-        if expand_ratio != 1:
+        if expand_ratio != 1:  #判断扩展因子是否为1，等于1则不要1*1的卷积
             # 1x1 pointwise conv
             layers.append(ConvBNReLU(in_channel, hidden_channel, kernel_size=1))
         layers.extend([
