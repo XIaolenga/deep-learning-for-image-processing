@@ -102,14 +102,14 @@ class ResNet(nn.Module):
         self.width_per_group = width_per_group
 
         self.conv1 = nn.Conv2d(3, self.in_channel, kernel_size=7, stride=2,
-                               padding=3, bias=False)
-        self.bn1 = nn.BatchNorm2d(self.in_channel)
+                               padding=3, bias=False)  # 输入卷积核个数为RGB（3），输出为定义的in_channel= 64
+        self.bn1 = nn.BatchNorm2d(self.in_channel)     # BN层的输入为上一层的输出
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, blocks_num[0])
-        self.layer2 = self._make_layer(block, 128, blocks_num[1], stride=2)
-        self.layer3 = self._make_layer(block, 256, blocks_num[2], stride=2)
-        self.layer4 = self._make_layer(block, 512, blocks_num[3], stride=2)
+        self.layer1 = self._make_layer(block, 64, blocks_num[0])          ## conv2
+        self.layer2 = self._make_layer(block, 128, blocks_num[1], stride=2) ## conv3
+        self.layer3 = self._make_layer(block, 256, blocks_num[2], stride=2) # conv4
+        self.layer4 = self._make_layer(block, 512, blocks_num[3], stride=2) #conv5
         if self.include_top:
             self.avgpool = nn.AdaptiveAvgPool2d((1, 1))  # output size = (1, 1)
             self.fc = nn.Linear(512 * block.expansion, num_classes)
@@ -118,23 +118,23 @@ class ResNet(nn.Module):
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
 
-    def _make_layer(self, block, channel, block_num, stride=1):
+    def _make_layer(self, block, channel, block_num, stride=1):     ##生成残差结构 block（BasicBlock或者Bottleneck），channel表示残差结构中卷积层所使用的卷积核的个数
         downsample = None
-        if stride != 1 or self.in_channel != channel * block.expansion:
+        if stride != 1 or self.in_channel != channel * block.expansion:   
             downsample = nn.Sequential(
-                nn.Conv2d(self.in_channel, channel * block.expansion, kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(self.in_channel, channel * block.expansion, kernel_size=1, stride=stride, bias=False),##只调整残差的卷积核个数，不改变高宽
                 nn.BatchNorm2d(channel * block.expansion))
 
-        layers = []
-        layers.append(block(self.in_channel,
-                            channel,
+        layers = []  ## 定义个空列表，先将第一层的残差结构添加进去 block（BasicBlock或者Bottleneck）
+        layers.append(block(self.in_channel,  
+                            channel, ##残差结构所对应的主分支上的第一个卷积层的卷积核个数
                             downsample=downsample,
                             stride=stride,
                             groups=self.groups,
                             width_per_group=self.width_per_group))
-        self.in_channel = channel * block.expansion
+        self.in_channel = channel * block.expansion             # 虚线的残差结构
 
-        for _ in range(1, block_num):
+        for _ in range(1, block_num):                           # 将实线的残差结构用循环导入
             layers.append(block(self.in_channel,
                                 channel,
                                 groups=self.groups,
@@ -154,9 +154,9 @@ class ResNet(nn.Module):
         x = self.layer4(x)
 
         if self.include_top:
-            x = self.avgpool(x)
-            x = torch.flatten(x, 1)
-            x = self.fc(x)
+            x = self.avgpool(x)        ## 平均池化下采样
+            x = torch.flatten(x, 1) # 展平
+            x = self.fc(x) # 全连接
 
         return x
 
