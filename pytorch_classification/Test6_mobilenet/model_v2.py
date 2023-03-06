@@ -18,7 +18,7 @@ def _make_divisible(ch, divisor=8, min_ch=None):
     return new_ch
 
 
-class ConvBNReLU(nn.Sequential):
+class ConvBNReLU(nn.Sequential):  
     def __init__(self, in_channel, out_channel, kernel_size=3, stride=1, groups=1):
         padding = (kernel_size - 1) // 2
         super(ConvBNReLU, self).__init__(
@@ -28,7 +28,7 @@ class ConvBNReLU(nn.Sequential):
         )
 
 
-class InvertedResidual(nn.Module):
+class InvertedResidual(nn.Module):      # 倒残差结构
     def __init__(self, in_channel, out_channel, stride, expand_ratio):
         super(InvertedResidual, self).__init__()
         hidden_channel = in_channel * expand_ratio
