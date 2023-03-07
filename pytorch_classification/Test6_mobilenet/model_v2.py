@@ -1,8 +1,8 @@
 from torch import nn
 import torch
 
-
-def _make_divisible(ch, divisor=8, min_ch=None):  ###
+### 论文中的bottleneck表示倒残差结构
+def _make_divisible(ch, divisor=8, min_ch=None):  ###  make_divisible函数主要是为了让通道数等于8的倍数（可能是因为底层的硬件）
     """
     This function is taken from the original tf repo.
     It ensures that all layers have a channel number that is divisible by 8
@@ -10,8 +10,8 @@ def _make_divisible(ch, divisor=8, min_ch=None):  ###
     https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet/mobilenet.py
     """
     if min_ch is None:
-        min_ch = divisor
-    new_ch = max(min_ch, int(ch + divisor / 2) // divisor * divisor)
+        min_ch = divisor  
+    new_ch = max(min_ch, int(ch + divisor / 2) // divisor * divisor)        ### 四舍五入
     # Make sure that round down does not go down by more than 10%.
     if new_ch < 0.9 * ch:
         new_ch += divisor
@@ -39,17 +39,17 @@ class InvertedResidual(nn.Module):      # 倒残差结构
             # 1x1 pointwise conv
             layers.append(ConvBNReLU(in_channel, hidden_channel, kernel_size=1))
         layers.extend([
-            # 3x3 depthwise conv
+            # 3x3 depthwise conv   DW卷积的输出特征矩阵的深度与输入特征矩阵的深度是相同的，若groups等于输入特征矩阵的深度则为DW卷积。
             ConvBNReLU(hidden_channel, hidden_channel, stride=stride, groups=hidden_channel),
-            # 1x1 pointwise conv(linear)
+            # 1x1 pointwise conv(linear)         1*1的普通卷积，采用的激活函数为线性激活函数，不能用上面定义的ConBNRelu层结构
             nn.Conv2d(hidden_channel, out_channel, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_channel),
         ])
 
-        self.conv = nn.Sequential(*layers)
+        self.conv = nn.Sequential(*layers)  # 将上面所定义的层结构打包组合在一起called self.conv
 
     def forward(self, x):
-        if self.use_shortcut:
+        if self.use_shortcut:           ##判断是否使用捷径分支
             return x + self.conv(x)
         else:
             return self.conv(x)
@@ -73,11 +73,11 @@ class MobileNetV2(nn.Module):
             [6, 320, 1, 1],
         ]
 
-        features = []
+        features = []             #定义特征提取模块
         # conv1 layer
         features.append(ConvBNReLU(3, input_channel, stride=2))
         # building inverted residual residual blockes
-        for t, c, n, s in inverted_residual_setting:
+        for t, c, n, s in inverted_residual_setting:   # 遍历将特征提取模块导入网络
             output_channel = _make_divisible(c * alpha, round_nearest)
             for i in range(n):
                 stride = s if i == 0 else 1
@@ -95,7 +95,7 @@ class MobileNetV2(nn.Module):
             nn.Linear(last_channel, num_classes)
         )
 
-        # weight initialization
+        # weight initialization  权重初始化
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out')
@@ -108,7 +108,7 @@ class MobileNetV2(nn.Module):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.zeros_(m.bias)
 
-    def forward(self, x):
+    def forward(self, x): 
         x = self.features(x)
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
