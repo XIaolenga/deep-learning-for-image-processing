@@ -73,7 +73,7 @@ def main():
     pre_dict = {k: v for k, v in pre_weights.items() if net.state_dict()[k].numel() == v.numel()}
     missing_keys, unexpected_keys = net.load_state_dict(pre_dict, strict=False)
 
-    # freeze features weights
+    # freeze features weights  将卷积层的参数冻结，只训练最后两个全连接层的参数 （注释掉则表示训练全部参数）
     for param in net.features.parameters():
         param.requires_grad = False
 
