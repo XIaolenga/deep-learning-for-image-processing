@@ -6,7 +6,7 @@ from torch.nn import functional as F
 from functools import partial
 
 
-def _make_divisible(ch, divisor=8, min_ch=None):
+def _make_divisible(ch, divisor=8, min_ch=None):  # 将传入的Channel传入到离他最近的8的整数倍（训练速度提升）
     """
     This function is taken from the original tf repo.
     It ensures that all layers have a channel number that is divisible by 8
@@ -22,19 +22,19 @@ def _make_divisible(ch, divisor=8, min_ch=None):
     return new_ch
 
 
-class ConvBNActivation(nn.Sequential):
+class ConvBNActivation(nn.Sequential):           
     def __init__(self,
-                 in_planes: int,
-                 out_planes: int,
+                 in_planes: int,        ## 输入特征矩阵的Channel
+                 out_planes: int,         ## 输出特征矩阵的Channel
                  kernel_size: int = 3,
                  stride: int = 1,
                  groups: int = 1,
-                 norm_layer: Optional[Callable[..., nn.Module]] = None,
-                 activation_layer: Optional[Callable[..., nn.Module]] = None):
+                 norm_layer: Optional[Callable[..., nn.Module]] = None,  #对应的卷积核接的BN层
+                 activation_layer: Optional[Callable[..., nn.Module]] = None):  # 对应的就是激活函数
         padding = (kernel_size - 1) // 2
-        if norm_layer is None:
+        if norm_layer is None:       # 如果没有传入norm_layer则默认采用BN层
             norm_layer = nn.BatchNorm2d
-        if activation_layer is None:
+        if activation_layer is None: # 如果没有传入activation_layer则默认采用Relu6
             activation_layer = nn.ReLU6
         super(ConvBNActivation, self).__init__(nn.Conv2d(in_channels=in_planes,
                                                          out_channels=out_planes,
