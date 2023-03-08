@@ -1,3 +1,4 @@
+# 表中的每个stage后面都默认跟着BN以及swish激活函数
 import math
 import copy
 from functools import partial
